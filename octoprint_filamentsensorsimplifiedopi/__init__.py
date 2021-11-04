@@ -6,11 +6,11 @@ import re
 from octoprint.events import Events
 from time import sleep
 import time
-import RPi.GPIO as GPIO
+import OPi.GPIO as GPIO
 import flask
 
 
-class Filament_sensor_simplifiedPlugin(octoprint.plugin.StartupPlugin,
+class Filament_sensor_simplified_OPiPlugin(octoprint.plugin.StartupPlugin,
 									   octoprint.plugin.EventHandlerPlugin,
 									   octoprint.plugin.TemplatePlugin,
 									   octoprint.plugin.SettingsPlugin,
@@ -85,7 +85,7 @@ class Filament_sensor_simplifiedPlugin(octoprint.plugin.StartupPlugin,
 
 	# AssetPlugin hook
 	def get_assets(self):
-		return dict(js=["js/filamentsensorsimplified.js"], css=["css/filamentsensorsimplified.css"])
+		return dict(js=["js/filamentsensorsimplifiedopi.js"], css=["css/filamentsensorsimplifiedopi.css"])
 
 	# Template hooks
 	def get_template_configs(self):
@@ -147,7 +147,8 @@ class Filament_sensor_simplifiedPlugin(octoprint.plugin.StartupPlugin,
 					self.gpio_activated = True
 
 				# first check pins not in use already
-				usage = GPIO.gpio_function(selected_pin)
+###				usage = GPIO.gpio_function(selected_pin)    ###  no existe metodo
+                usage = 1   ### forzado
 				self._logger.debug("usage on pin %s is %s" % (selected_pin, usage))
 				# 1 = input
 				if usage is not 1:
@@ -164,6 +165,8 @@ class Filament_sensor_simplifiedPlugin(octoprint.plugin.StartupPlugin,
 						GPIO.cleanup()
 					GPIO.setmode(GPIO.BCM)
 					self.gpio_activated = True
+
+### SUNXI: añadir elif mode is 12
 
 			# before read don't let the pin float
 			self._logger.debug("selected power is %s" % selected_power)
@@ -187,7 +190,7 @@ class Filament_sensor_simplifiedPlugin(octoprint.plugin.StartupPlugin,
 			return "", 556
 
 	def on_after_startup(self):
-		self._logger.info("Filament Sensor Simplified started")
+		self._logger.info("Filament sensor simplified Orange Pi started")
 		gpio_mode = GPIO.getmode()
 
 		# Fix old -1 settings to 0
@@ -203,6 +206,8 @@ class Filament_sensor_simplifiedPlugin(octoprint.plugin.StartupPlugin,
 				GPIO.setmode(GPIO.BOARD)
 			elif self.gpio_mode is 11:
 				GPIO.setmode(GPIO.BCM)
+            elif self.gpio_mode is 12:  ###
+                GPIO.setmode(GPIO.SUNXI)    ###
 			self.gpio_mode_disabled = False
 		self._logger.info("Mode is %s" % (gpio_mode))
 
@@ -249,6 +254,7 @@ class Filament_sensor_simplifiedPlugin(octoprint.plugin.StartupPlugin,
 																	 dict(type="error", autoClose=True,
 																		  msg="Filament sensor settings not saved, you are trying to use a pin which is out of range"))
 							return
+### añadir elif mode_to_save is 12:
 
 				except ValueError:
 					self._logger.info(
@@ -446,6 +452,8 @@ class Filament_sensor_simplifiedPlugin(octoprint.plugin.StartupPlugin,
 				GPIO.setmode(GPIO.BOARD)
 			elif self.gpio_mode is 11:
 				GPIO.setmode(GPIO.BCM)
+			elif self.gpio_mode is 12:  ###
+				GPIO.setmode(GPIO.SUNXI)    ###
 
 			# 0 = sensor is grounded, react to rising edge pulled up by pull up resistor
 			if self.power is 0:
@@ -496,18 +504,18 @@ class Filament_sensor_simplifiedPlugin(octoprint.plugin.StartupPlugin,
 		# Plugin here. See https://docs.octoprint.org/en/master/bundledplugins/softwareupdate.html
 		# for details.
 		return dict(
-			filamentsensorsimplified=dict(
-				displayName="Filament sensor simplified",
+			filamentsensorsimplifiedopi=dict(
+				displayName="Filament sensor simplified Orange Pi",
 				displayVersion=self._plugin_version,
 
 				# version check: github repository
 				type="github_release",
-				user="luckyx182",
-				repo="Filament_sensor_simplified",
+				user="camochu",
+				repo="Filament_sensor_simplified_OPi",
 				current=self._plugin_version,
 
 				# update method: pip
-				pip="https://github.com/luckyx182/Filament_sensor_simplified/archive/{target_version}.zip"
+				pip="https://github.com/camochu/Filament_sensor_simplified_OPi/archive/{target_version}.zip"
 			)
 		)
 
@@ -516,18 +524,18 @@ class Filament_sensor_simplifiedPlugin(octoprint.plugin.StartupPlugin,
 # Python 2. New plugins should make sure to run under both versions for now. Uncomment one of the following
 # compatibility flags according to what Python versions your plugin supports!
 # __plugin_pythoncompat__ = ">=2.7,<3" # only python 2
-# __plugin_pythoncompat__ = ">=3,<4" # only python 3
-__plugin_pythoncompat__ = ">=2.7,<4"  # python 2 and 3
+__plugin_pythoncompat__ = ">=3,<4" # only python 3
+# __plugin_pythoncompat__ = ">=2.7,<4"  # python 2 and 3
 
-__plugin_name__ = "Filament Sensor Simplified"
-__plugin_version__ = "0.1.0"
+__plugin_name__ = "Filament sensor simplified Orange Pi"
+__plugin_version__ = "0.0.1"
 
 
 def __plugin_check__():
 	try:
-		import RPi.GPIO as GPIO
-		if GPIO.VERSION < "0.6":  # Need at least 0.6 for edge detection
-			return False
+		import OPi.GPIO as GPIO
+###		if GPIO.VERSION < "0.6":  # Need at least 0.6 for edge detection ### revisar
+###			return False
 	except ImportError:
 		return False
 	return True
@@ -535,7 +543,7 @@ def __plugin_check__():
 
 def __plugin_load__():
 	global __plugin_implementation__
-	__plugin_implementation__ = Filament_sensor_simplifiedPlugin()
+	__plugin_implementation__ = Filament_sensor_simplified_OPiPlugin()
 
 	global __plugin_hooks__
 	__plugin_hooks__ = {

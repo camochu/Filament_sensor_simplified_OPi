@@ -25,7 +25,7 @@ Let's check some features:
 Install via the bundled [Plugin Manager](https://docs.octoprint.org/en/master/bundledplugins/pluginmanager.html)
 or manually using this URL:
 
-    https://github.com/luckyx182/Filament_sensor_simplified/archive/master.zip
+    https://github.com/camochu/Filament_sensor_simplified_OPi/archive/master.zip
 
 ## Configuration
 
