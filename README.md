@@ -1,4 +1,4 @@
-# Filament sensor simplified
+# Filament sensor simplified Orange Pi
 
 This plugin reacts to short lever microswitch output like [this](https://chinadaier.en.made-in-china.com/product/ABVJkvyMAqcT/China-1A-125VAC-on-off-Kw10-Mini-Micro-Mouse-Switch.html)
 If triggered it issues configured command to printer.
