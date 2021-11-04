@@ -148,7 +148,7 @@ class Filament_sensor_simplified_OPiPlugin(octoprint.plugin.StartupPlugin,
 
 				# first check pins not in use already
 ###				usage = GPIO.gpio_function(selected_pin)    ###  no existe metodo
-                usage = 1   ### forzado
+				usage = 1   ### forzado
 				self._logger.debug("usage on pin %s is %s" % (selected_pin, usage))
 				# 1 = input
 				if usage is not 1:
@@ -206,8 +206,8 @@ class Filament_sensor_simplified_OPiPlugin(octoprint.plugin.StartupPlugin,
 				GPIO.setmode(GPIO.BOARD)
 			elif self.gpio_mode is 11:
 				GPIO.setmode(GPIO.BCM)
-            elif self.gpio_mode is 12:  ###
-                GPIO.setmode(GPIO.SUNXI)    ###
+			elif self.gpio_mode is 12:  ###
+				GPIO.setmode(GPIO.SUNXI)    ###
 			self.gpio_mode_disabled = False
 		self._logger.info("Mode is %s" % (gpio_mode))
 
