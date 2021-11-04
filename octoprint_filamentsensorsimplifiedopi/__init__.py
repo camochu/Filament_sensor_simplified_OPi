@@ -524,8 +524,8 @@ class Filament_sensor_simplified_OPiPlugin(octoprint.plugin.StartupPlugin,
 # Python 2. New plugins should make sure to run under both versions for now. Uncomment one of the following
 # compatibility flags according to what Python versions your plugin supports!
 # __plugin_pythoncompat__ = ">=2.7,<3" # only python 2
-__plugin_pythoncompat__ = ">=3,<4" # only python 3
-# __plugin_pythoncompat__ = ">=2.7,<4"  # python 2 and 3
+# __plugin_pythoncompat__ = ">=3,<4" # only python 3
+__plugin_pythoncompat__ = ">=2.7,<4"  # python 2 and 3
 
 __plugin_name__ = "Filament sensor simplified Orange Pi"
 __plugin_version__ = "0.0.1"
