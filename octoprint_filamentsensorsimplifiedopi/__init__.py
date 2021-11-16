@@ -170,6 +170,8 @@ class Filament_sensor_simplified_OPiPlugin(octoprint.plugin.StartupPlugin,
 
 			# before read don't let the pin float
 			self._logger.debug("selected power is %s" % selected_power)
+			if selected_pin in GPIO._exports:	### comprobar si ya está configurado, llamar 2 veces a GPIO.setup da error
+				GPIO.cleanup(selected_pin)		### si lo está lo limpio
 			if selected_power is 0:
 				GPIO.setup(selected_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 			else:
@@ -179,6 +181,7 @@ class Filament_sensor_simplified_OPiPlugin(octoprint.plugin.StartupPlugin,
 			self._logger.debug("pin value is %s" % pin_value)
 
 			# reset input to pull down after read
+			GPIO.cleanup(selected_pin)	### limpiar antes de volver a configurar, llamar dos veces a GPIO.setup da error
 			GPIO.setup(selected_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 			triggered_bool = (pin_value + selected_power + triggered) % 2 is 0
@@ -236,7 +239,8 @@ class Filament_sensor_simplified_OPiPlugin(octoprint.plugin.StartupPlugin,
 					# BOARD
 					if mode_to_save is 10:
 						# before saving check if pin not used by others
-						usage = GPIO.gpio_function(pin_to_save)
+###						usage = GPIO.gpio_function(pin_to_save)    ###  no existe metodo
+						usage = 1   ### forzado
 						self._logger.debug("usage on pin %s is %s" % (pin_to_save, usage))
 						if usage is not 1:
 							self._logger.info(
@@ -455,6 +459,8 @@ class Filament_sensor_simplified_OPiPlugin(octoprint.plugin.StartupPlugin,
 			elif self.gpio_mode is 12:  ###
 				GPIO.setmode(GPIO.SUNXI)    ###
 
+			if self.pin in GPIO._exports:	### comprobar si ya está configurado, llamar 2 veces a GPIO.setup da error
+				GPIO.cleanup(self.pin)		### si lo está lo limpio
 			# 0 = sensor is grounded, react to rising edge pulled up by pull up resistor
 			if self.power is 0:
 				GPIO.setup(self.pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
