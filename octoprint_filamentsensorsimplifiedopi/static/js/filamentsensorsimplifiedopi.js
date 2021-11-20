@@ -70,6 +70,7 @@ $(function () {
                         "pin": $("#filamentsensorsimplifiedopi_settings_pinInput").val(),
                         "power": $("#filamentsensorsimplifiedopi_settings_powerInput").val(),
                         "mode": $("#filamentsensorsimplifiedopi_settings_gpioMode").val(),
+                        "orangepimodel": $("#filamentsensorsimplifiedopi_settings_orangePiModel").val(),	//////
                         "triggered": $("#filamentsensorsimplifiedopi_settings_triggeredInput").val()
                     }),
                     statusCode: {
@@ -123,6 +124,8 @@ $(function () {
             var pin = parseInt($('#filamentsensorsimplifiedopi_settings_pinInput').val(),10);
             // What is the sensor connected to - ground or 3.3v
             var sensorCon = parseInt($('#filamentsensorsimplifiedopi_settings_powerInput').val(),10);
+			// What is the Orange Pi board model
+			var pimodel = parseInt($('#filamentsensorsimplifiedopi_settings_orangePiModel').val(),10);
 
             // Show alerts
             if (
@@ -132,6 +135,8 @@ $(function () {
                     (mode == 11 && (pin == 2 || pin == 3))
                     ||	//////
                     (mode == 12 && (pin == 0 || pin == 0)) //////
+                    ||	//////
+                    (mode == 13 && (pin == 3 || pin == 5)) //////
                 )
             ){
                 $('#filamentsensorsimplifiedopi_settings_pullupwarn').removeClass('hidden pulsAlert').addClass('pulsAlert');
@@ -141,7 +146,7 @@ $(function () {
 
             // Set max to right board type - 10 = Boardmode
             var showWarning = true;
-            if (mode == 10){
+            if (mode == 10 || (mode== 13 && pimodel <= 5)){	//////
                 $('#filamentsensorsimplifiedopi_settings_pinInput').attr('max',40);
                 if (pin != 0 && $.inArray(pin,self.validPinsBoard) == -1){
                     showWarning = false;
@@ -149,10 +154,17 @@ $(function () {
                 }else{
                     $('#filamentsensorsimplifiedopi_settings_badpin').addClass('hidden').removeClass('pulsAlert');
                 }
-            }else{
+			}else if (mode ==13){	//////
+                $('#filamentsensorsimplifiedopi_settings_pinInput').attr('max',26);
+                if (pin != 0 && $.inArray(pin,self.validPinsBoard) == -1){
+                    showWarning = false;
+                    $('#filamentsensorsimplifiedopi_settings_badpin').removeClass('hidden pulsAlert').addClass('pulsAlert');
+                }else{
+                    $('#filamentsensorsimplifiedopi_settings_badpin').addClass('hidden').removeClass('pulsAlert');
+                }
+			}else{
                 $('#filamentsensorsimplifiedopi_settings_pinInput').attr('max',27);
             }
-////// agregar para SUNXI 			
 
             // High or low
             if ($('#filamentsensorsimplifiedopi_settings_pinInput').attr('max') < pin || pin < 0){
