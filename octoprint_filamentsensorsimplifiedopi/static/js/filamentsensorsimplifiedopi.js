@@ -69,7 +69,8 @@ $(function () {
                         "command": "testSensor",
                         "pin": $("#filamentsensorsimplifiedopi_settings_pinInput").val(),
                         "power": $("#filamentsensorsimplifiedopi_settings_powerInput").val(),
-                        "mode": $("#filamentsensorsimplifiedopi_settings_gpioMode").val(),
+//////                        "mode": $("#filamentsensorsimplifiedopi_settings_gpioMode").val(),
+                        "orangepimodel": $("#filamentsensorsimplifiedopi_settings_orangePiModel").val(),	//////
                         "triggered": $("#filamentsensorsimplifiedopi_settings_triggeredInput").val()
                     }),
                     statusCode: {
@@ -118,20 +119,25 @@ $(function () {
         }
         self.checkWarningPullUp = function(event){
             // Which mode are we using
-            var mode = parseInt($('#filamentsensorsimplifiedopi_settings_gpioMode').val(),10);
+//////            var mode = parseInt($('#filamentsensorsimplifiedopi_settings_gpioMode').val(),10);
             // What pin is the sensor connected to
             var pin = parseInt($('#filamentsensorsimplifiedopi_settings_pinInput').val(),10);
             // What is the sensor connected to - ground or 3.3v
             var sensorCon = parseInt($('#filamentsensorsimplifiedopi_settings_powerInput').val(),10);
+			// What is the Orange Pi board model
+			var pimodel = parseInt($('#filamentsensorsimplifiedopi_settings_orangePiModel').val(),10);
 
             // Show alerts
             if (
                 sensorCon == 1 && (
-                    (mode == 10 && (pin==3 || pin == 5))
-                    ||
-                    (mode == 11 && (pin == 2 || pin == 3))
-                    ||	//////
-                    (mode == 12 && (pin == 0 || pin == 0)) //////
+					(pin == 3 || pin == 5)
+//////                    (mode == 10 && (pin==3 || pin == 5))
+//////                    ||
+//////                    (mode == 11 && (pin == 2 || pin == 3))
+//////                    ||	//////
+//////                    (mode == 12 && (pin == 0 || pin == 0)) //////
+//////                    ||	//////
+//////                    (mode == 13 && (pin == 3 || pin == 5)) //////
                 )
             ){
                 $('#filamentsensorsimplifiedopi_settings_pullupwarn').removeClass('hidden pulsAlert').addClass('pulsAlert');
@@ -141,18 +147,36 @@ $(function () {
 
             // Set max to right board type - 10 = Boardmode
             var showWarning = true;
-            if (mode == 10){
-                $('#filamentsensorsimplifiedopi_settings_pinInput').attr('max',40);
-                if (pin != 0 && $.inArray(pin,self.validPinsBoard) == -1){
-                    showWarning = false;
-                    $('#filamentsensorsimplifiedopi_settings_badpin').removeClass('hidden pulsAlert').addClass('pulsAlert');
-                }else{
-                    $('#filamentsensorsimplifiedopi_settings_badpin').addClass('hidden').removeClass('pulsAlert');
-                }
+//////            if (mode == 10 || (mode== 13 && pimodel <= 5)){	//////
+//////                $('#filamentsensorsimplifiedopi_settings_pinInput').attr('max',40);
+//////                if (pin != 0 && $.inArray(pin,self.validPinsBoard) == -1){
+//////                    showWarning = false;
+//////                    $('#filamentsensorsimplifiedopi_settings_badpin').removeClass('hidden pulsAlert').addClass('pulsAlert');
+//////                }else{
+//////                    $('#filamentsensorsimplifiedopi_settings_badpin').addClass('hidden').removeClass('pulsAlert');
+//////                }
+//////			}else if (mode ==13){	//////
+//////                $('#filamentsensorsimplifiedopi_settings_pinInput').attr('max',26);
+//////                if (pin != 0 && $.inArray(pin,self.validPinsBoard) == -1){
+//////                    showWarning = false;
+//////                    $('#filamentsensorsimplifiedopi_settings_badpin').removeClass('hidden pulsAlert').addClass('pulsAlert');
+//////                }else{
+//////                    $('#filamentsensorsimplifiedopi_settings_badpin').addClass('hidden').removeClass('pulsAlert');
+//////                }
+//////			}else{
+//////                $('#filamentsensorsimplifiedopi_settings_pinInput').attr('max',27);
+//////            }
+			if (pimodel <= 5) {
+				$('#filamentsensorsimplifiedopi_settings_pinInput').attr('max',40);
+			} else {
+                $('#filamentsensorsimplifiedopi_settings_pinInput').attr('max',26);
+			}
+            if (pin != 0 && $.inArray(pin,self.validPinsBoard) == -1){
+                showWarning = false;
+                $('#filamentsensorsimplifiedopi_settings_badpin').removeClass('hidden pulsAlert').addClass('pulsAlert');
             }else{
-                $('#filamentsensorsimplifiedopi_settings_pinInput').attr('max',27);
+                $('#filamentsensorsimplifiedopi_settings_badpin').addClass('hidden').removeClass('pulsAlert');
             }
-////// agregar para SUNXI 			
 
             // High or low
             if ($('#filamentsensorsimplifiedopi_settings_pinInput').attr('max') < pin || pin < 0){
@@ -181,8 +205,9 @@ $(function () {
             self.testSensorResult("");
             self.getDisabled();
              // Check for broken settings
-            $('#filamentsensorsimplifiedopi_settings_gpioMode, #filamentsensorsimplifiedopi_settings_pinInput, #filamentsensorsimplifiedopi_settings_powerInput').off('change.fsensor').on('change.fsensor',self.checkWarningPullUp);
-            $('#filamentsensorsimplifiedopi_settings_gpioMode').trigger('change.fsensor');
+			 $('#filamentsensorsimplifiedopi_settings_pinInput, #filamentsensorsimplifiedopi_settings_powerInput').off('change.fsensor').on('change.fsensor',self.checkWarningPullUp);
+//////            $('#filamentsensorsimplifiedopi_settings_gpioMode, #filamentsensorsimplifiedopi_settings_pinInput, #filamentsensorsimplifiedopi_settings_powerInput').off('change.fsensor').on('change.fsensor',self.checkWarningPullUp);
+//////            $('#filamentsensorsimplifiedopi_settings_gpioMode').trigger('change.fsensor');
         }
     }
 

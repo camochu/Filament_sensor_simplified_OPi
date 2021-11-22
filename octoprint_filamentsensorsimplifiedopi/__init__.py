@@ -8,6 +8,15 @@ from time import sleep
 import time
 import OPi.GPIO as GPIO
 import flask
+import orangepi.pc          # Lite / One / PC / PC Plus / Plus 2E (40 GPIO)
+import orangepi.pc2         # PC 2 (40 GPIO)
+import orangepi.prime       # Prime (40 GPIO)
+import orangepi.winplus     # Win Plus (40 GPIO)
+import orangepi.pi4         # 4 / 4B (40 GPIO)
+import orangepi.oneplus     # Lite 2 / One Plus (26 GPIO)
+import orangepi.zeroplus    # R1 / Zero / Zero Plus (26 GPIO)
+import orangepi.zeroplus2   # Zero Plus 2 (26 GPIO)
+import orangepi.pi3         # 3 (26 GPIO)
 
 
 class Filament_sensor_simplified_OPiPlugin(octoprint.plugin.StartupPlugin,
@@ -63,9 +72,9 @@ class Filament_sensor_simplified_OPiPlugin(octoprint.plugin.StartupPlugin,
 		# flag to prevent double detection
 		self.changing_filament_started = False
 
-	@property
-	def gpio_mode(self):
-		return int(self._settings.get(["gpio_mode"]))
+####	@property
+####	def gpio_mode(self):
+####		return int(self._settings.get(["gpio_mode"]))
 
 	@property
 	def pin(self):
@@ -83,6 +92,11 @@ class Filament_sensor_simplified_OPiPlugin(octoprint.plugin.StartupPlugin,
 	def triggered(self):
 		return int(self._settings.get(["triggered"]))
 
+### agregado modelo orange pi
+	@property
+	def orangepimodel(self):
+		return int(self._settings.get(["orangepimodel"]))
+
 	# AssetPlugin hook
 	def get_assets(self):
 		return dict(js=["js/filamentsensorsimplifiedopi.js"], css=["css/filamentsensorsimplifiedopi.css"])
@@ -94,7 +108,8 @@ class Filament_sensor_simplified_OPiPlugin(octoprint.plugin.StartupPlugin,
 	# Settings hook
 	def get_settings_defaults(self):
 		return dict(
-			gpio_mode=10,
+####			gpio_mode=13,
+			orangepimodel=1,
 			pin=self.pin_num_disabled,  # Default is -1
 			power=0,
 			g_code=self.default_gcode,
@@ -127,6 +142,7 @@ class Filament_sensor_simplified_OPiPlugin(octoprint.plugin.StartupPlugin,
 			# only poll every 60 seconds and if auto detection is not running
 			timenow = int(time.time())
 			if self.detectionOn == False and (timenow - self.ui_status) >= 60:
+###				self._logger.info("ON_API_COMMAND_pollstatus: self.pin %s, data[pin] %s", self.pin, int(data.get("pin")))	###
 				if self.setupGPIO():
 					self.no_filament()
 			return flask.jsonify({'status' : self.last_status})
@@ -134,44 +150,42 @@ class Filament_sensor_simplified_OPiPlugin(octoprint.plugin.StartupPlugin,
 		try:
 			selected_power = int(data.get("power"))
 			selected_pin = int(data.get("pin"))
-			mode = int(data.get("mode"))
 			triggered = int(data.get("triggered"))
+			selected_pimodel = int(data.get("orangepimodel"))	### set Orange Pi model
 
-			# BOARD
-			if mode is 10:
-				# if mode set by 3rd party don't set it again
-				if not self.gpio_mode_disabled:
-					if self.gpio_activated:
-						GPIO.cleanup()
-					GPIO.setmode(GPIO.BOARD)
-					self.gpio_activated = True
-
-				# first check pins not in use already
-###				usage = GPIO.gpio_function(selected_pin)    ###  no existe metodo
-				usage = 1   ### forzado
-				self._logger.debug("usage on pin %s is %s" % (selected_pin, usage))
-				# 1 = input
-				if usage is not 1:
-					# 555 is not http specific so I chose it
-					return "", 555
-			# BCM
-			elif mode is 11:
-				# BCM range 1-27
-				if selected_pin > 27:
-					return "", 556
-				# if mode set by 3rd party don't set it again
-				if not self.gpio_mode_disabled:
-					if self.gpio_activated:
-						GPIO.cleanup()
-					GPIO.setmode(GPIO.BCM)
-					self.gpio_activated = True
-
-### SUNXI: añadir elif mode is 12
+			self._logger.info("ON_API_COMMAND_start: getmode %s, Orange Pi model %s, selected pin %s", GPIO.getmode(), selected_pimodel, selected_pin)	###
+			# if mode set by 3rd party don't set it again
+			if not self.gpio_mode_disabled:
+				self._logger.info("ON_API_COMMAND_set_mode: getmode %s, Orange Pi model %s, selected pin %s", GPIO.getmode(), selected_pimodel, selected_pin)	###
+				if self.gpio_activated:
+					GPIO.cleanup()
+					self._logger.info("ON_API_COMMAND_cleanup: getmode %s, Orange Pi model %s, selected pin %s", GPIO.getmode(), selected_pimodel, selected_pin)	###
+				if selected_pimodel is 1:
+					GPIO.setmode(orangepi.pc.BOARD)
+				elif selected_pimodel is 2:
+					GPIO.setmode(orangepi.pc2.BOARD)
+				elif selected_pimodel is 3:
+					GPIO.setmode(orangepi.prime.BOARD)
+				elif selected_pimodel is 4:
+					GPIO.setmode(orangepi.winplus.BOARD)
+				elif selected_pimodel is 5:
+					GPIO.setmode(orangepi.pi4.BOARD)
+				elif selected_pimodel is 6:
+					GPIO.setmode(orangepi.oneplus.BOARD)
+				elif selected_pimodel is 7:
+					GPIO.setmode(orangepi.zeroplus.BOARD)
+				elif selected_pimodel is 8:
+					GPIO.setmode(orangepi.zeroplus2.BOARD)
+				elif selected_pimodel is 9:
+					GPIO.setmode(orangepi.pi3.BOARD)
+				self._logger.info("ON_API_COMMAND_set_mode_end: getmode %s, Orange Pi model %s, selected pin %s", GPIO.getmode(), selected_pimodel, selected_pin)	###
+				self.gpio_activated = True
 
 			# before read don't let the pin float
 			self._logger.debug("selected power is %s" % selected_power)
 			if selected_pin in GPIO._exports:	### comprobar si ya está configurado, llamar 2 veces a GPIO.setup da error
 				GPIO.cleanup(selected_pin)		### si lo está lo limpio
+			self._logger.info("ON_API_COMMAND_fijar_pin: selected pin %s", selected_pin)	###
 			if selected_power is 0:
 				GPIO.setup(selected_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 			else:
@@ -201,18 +215,33 @@ class Filament_sensor_simplified_OPiPlugin(octoprint.plugin.StartupPlugin,
 			self._logger.info("Fixing old settings from -1 to 0")
 			self._settings.set(["pin"], 0)
 			self.pin = 0
-		if gpio_mode is not None:
-			self._settings.set(["gpio_mode"], gpio_mode)
+		if gpio_mode is not None:	### no deberia suceder
+####			self._settings.set(["gpio_mode"], gpio_mode)
 			self.gpio_mode_disabled = True
+			self._logger.info("ON_AFTER_STARTUP_inicio: Modo ya fijado, se desactiva")	###
 		else:
-			if self.gpio_mode is 10:
-				GPIO.setmode(GPIO.BOARD)
-			elif self.gpio_mode is 11:
-				GPIO.setmode(GPIO.BCM)
-			elif self.gpio_mode is 12:  ###
-				GPIO.setmode(GPIO.SUNXI)    ###
+			self._logger.info("ON_AFTER_STARTUP_inicio: getmode %s, Orange Pi model %s", GPIO.getmode(), self.orangepimodel)	###
+			if self.orangepimodel is 1:
+				GPIO.setmode(orangepi.pc.BOARD)
+			elif self.orangepimodel is 2:
+				GPIO.setmode(orangepi.pc2.BOARD)
+			elif self.orangepimodel is 3:
+				GPIO.setmode(orangepi.prime.BOARD)
+			elif self.orangepimodel is 4:
+				GPIO.setmode(orangepi.winplus.BOARD)
+			elif self.orangepimodel is 5:
+				GPIO.setmode(orangepi.pi4.BOARD)
+			elif self.orangepimodel is 6:
+				GPIO.setmode(orangepi.oneplus.BOARD)
+			elif self.orangepimodel is 7:
+				GPIO.setmode(orangepi.zeroplus.BOARD)
+			elif self.orangepimodel is 8:
+				GPIO.setmode(orangepi.zeroplus2.BOARD)
+			elif self.orangepimodel is 9:
+				GPIO.setmode(orangepi.pi3.BOARD)
+
 			self.gpio_mode_disabled = False
-		self._logger.info("Mode is %s" % (gpio_mode))
+		self._logger.info("ON_AFTER_STARTUP_fin: GPIO-getmode is %s", GPIO.getmode())
 
 		# get current status
 		if self.setupGPIO():
@@ -224,50 +253,35 @@ class Filament_sensor_simplified_OPiPlugin(octoprint.plugin.StartupPlugin,
 	def on_settings_save(self, data):
 		# Retrieve any settings not changed in order to validate that the combination of new and old settings end up in a bad combination
 		pin_to_save = self._settings.get_int(["pin"])
-		mode_to_save = self._settings.get_int(["gpio_mode"])
+		pimodel_to_save = self._settings.get_int(["orangepimodel"])
 
+		self._logger.info("ONSETTIGNSSAVE_antes: pintosave %s, pimodeltosave %s", pin_to_save, pimodel_to_save)	###
 		if "pin" in data:
 			pin_to_save = int(data.get("pin"))
 
-		if "gpio_mode" in data:
-			mode_to_save = int(data.get("gpio_mode"))
+		if "orangepimodel" in data:
+			pimodel_to_save = int(data.get("orangepimodel"))
 
+		self._logger.info("ONSETTIGNSSAVE_despues: pintosave %s, pimodeltosave %s", pin_to_save, pimodel_to_save)	###
 		if pin_to_save is not None:
 			# check if pin is not power/ground pin or out of range but allow the disabled value (0)
 			if pin_to_save is not self.pin_num_disabled:
-				try:
-					# BOARD
-					if mode_to_save is 10:
-						# before saving check if pin not used by others
-###						usage = GPIO.gpio_function(pin_to_save)    ###  no existe metodo
-						usage = 1   ### forzado
-						self._logger.debug("usage on pin %s is %s" % (pin_to_save, usage))
-						if usage is not 1:
-							self._logger.info(
-								"You are trying to save pin %s which is already used by others" % (pin_to_save))
-							self._plugin_manager.send_plugin_message(self._identifier,
-																	 dict(type="error", autoClose=True,
-																		  msg="Filament sensor settings not saved, you are trying to use a pin which is already used by others"))
-							return
-					# BCM
-					elif mode_to_save is 11:
-						if pin_to_save > 27:
-							self._logger.info(
-								"You are trying to save pin %s which is out of range" % (pin_to_save))
-							self._plugin_manager.send_plugin_message(self._identifier,
-																	 dict(type="error", autoClose=True,
-																		  msg="Filament sensor settings not saved, you are trying to use a pin which is out of range"))
-							return
-### añadir elif mode_to_save is 12:
-
-				except ValueError:
-					self._logger.info(
-						"You are trying to save pin %s which is ground/power pin or out of range" % (pin_to_save))
-					self._plugin_manager.send_plugin_message(self._identifier, dict(type="error", autoClose=True,
-																					msg="Filament sensor settings not saved, you are trying to use a pin which is ground/power pin or out of range"))
+				if (pin_to_save > 26 and pimodel_to_save > 5) or pin_to_save > 40:
+					self._logger.info("You are trying to save pin %s which is out of range" % (pin_to_save))
+					self._plugin_manager.send_plugin_message(self._identifier,
+															 dict(type="error", autoClose=False,
+																  msg="Filament sensor settings not saved, you are trying to use a pin which is out of range"))
 					return
-
+				if pin_to_save not in [3,5,7,11,13,15,19,21,23,27,29,31,33,35,37,8,10,12,16,18,22,24,26,28,32,36,38,40]:
+					self._logger.info("You are trying to save pin %s which is ground/power" % (pin_to_save))
+					self._plugin_manager.send_plugin_message(self._identifier,
+															 dict(type="error", autoClose=False,
+																  msg="Filament sensor settings not saved, you are trying to use a pin which is ground/power"))
+					return
 		octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
+		# get current status
+		if self.setupGPIO():
+			self.no_filament()
 
 	def checkM600Enabled(self):
 		sleep(1)
@@ -330,7 +344,10 @@ class Filament_sensor_simplified_OPiPlugin(octoprint.plugin.StartupPlugin,
 
 	# read sensor input value
 	def no_filament(self):
-		filaStatus = (GPIO.input(self.pin) + self.power + self.triggered) % 2 is not 0
+		try:
+			filaStatus = (GPIO.input(self.pin) + self.power + self.triggered) % 2 is not 0
+		except:
+			filaStatus = False	### avoid error before configurin pin
 		self.ui_status = int(time.time())
 		self.last_status = filaStatus;
 
@@ -452,16 +469,30 @@ class Filament_sensor_simplified_OPiPlugin(octoprint.plugin.StartupPlugin,
 	# move into a function to keep it clean and it can also be used from other places
 	def setupGPIO(self):
 		if self.sensor_enabled():
-			if self.gpio_mode is 10:
-				GPIO.setmode(GPIO.BOARD)
-			elif self.gpio_mode is 11:
-				GPIO.setmode(GPIO.BCM)
-			elif self.gpio_mode is 12:  ###
-				GPIO.setmode(GPIO.SUNXI)    ###
+###			self._logger.info("SETUPGPIO_inicio: getmode %s, Orange Pi model %s, pin %s", GPIO.getmode(), self.orangepimodel, self.pin)	###
+			if self.orangepimodel is 1:
+				GPIO.setmode(orangepi.pc.BOARD)
+			elif self.orangepimodel is 2:
+				GPIO.setmode(orangepi.pc2.BOARD)
+			elif self.orangepimodel is 3:
+				GPIO.setmode(orangepi.prime.BOARD)
+			elif self.orangepimodel is 4:
+				GPIO.setmode(orangepi.winplus.BOARD)
+			elif self.orangepimodel is 5:
+				GPIO.setmode(orangepi.pi4.BOARD)
+			elif self.orangepimodel is 6:
+				GPIO.setmode(orangepi.oneplus.BOARD)
+			elif self.orangepimodel is 7:
+				GPIO.setmode(orangepi.zeroplus.BOARD)
+			elif self.orangepimodel is 8:
+				GPIO.setmode(orangepi.zeroplus2.BOARD)
+			elif self.orangepimodel is 9:
+				GPIO.setmode(orangepi.pi3.BOARD)
 
 			if self.pin in GPIO._exports:	### comprobar si ya está configurado, llamar 2 veces a GPIO.setup da error
 				GPIO.cleanup(self.pin)		### si lo está lo limpio
 			# 0 = sensor is grounded, react to rising edge pulled up by pull up resistor
+			self._logger.info("SETUPGPIO_fin: getmode %s, Orange Pi model %s, pin %s", GPIO.getmode(), self.orangepimodel, self.pin)	###
 			if self.power is 0:
 				GPIO.setup(self.pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 			# 1 = sensor is powered, react to falling edge pulled down by pull down resistor
@@ -534,7 +565,7 @@ class Filament_sensor_simplified_OPiPlugin(octoprint.plugin.StartupPlugin,
 __plugin_pythoncompat__ = ">=2.7,<4"  # python 2 and 3
 
 __plugin_name__ = "Filament sensor simplified Orange Pi"
-__plugin_version__ = "0.0.2"
+__plugin_version__ = "0.0.5"
 
 
 def __plugin_check__():

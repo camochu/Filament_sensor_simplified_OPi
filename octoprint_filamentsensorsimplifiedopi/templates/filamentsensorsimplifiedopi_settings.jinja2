@@ -5,13 +5,24 @@
     </div>
     <h3>{{ _('Sensor setup') }}</h3>
     <div class="control-group">
-        <label class="control-label" for="filamentsensorsimplifiedopi_settings_gpioMode">{{ _('Board mode') }}</label>
+        <label class="control-label" for="filamentsensorsimplifiedopi_settings_orangePiModel">{{ _('Orange Pi model') }}</label>
         <div class="controls">
-            <select title="{{ _('Board - referring to the pins by the number, BCM - referring to the pins by the Broadcom SOC channel') }}" id="filamentsensorsimplifiedopi_settings_gpioMode" data-bind="value: settingsViewModel.settings.plugins.filamentsensorsimplifiedopi.gpio_mode, disable:gpio_mode_disabled() || printing()" required>
-                <option value=10>{{ _('Physical/Board mode') }}</option>
-                <option value=11>{{ _('GPIO/BCM mode (Raspberri Pi)') }}</option>
-                <option value=12>{{ _('GPIO/SUNXI mode (Orange Pi)') }}</option>
+            <select title="{{ _('Orange Pi model (Zero, One, PC, ...)') }}" id="filamentsensorsimplifiedopi_settings_orangePiModel" data-bind="value: settingsViewModel.settings.plugins.filamentsensorsimplifiedopi.orangepimodel, disable:printing()" required>
+                <option value=1>{{ _('Lite / One / PC / PC Plus / Plus 2E') }}</option>
+                <option value=2>{{ _('PC 2') }}</option>
+                <option value=3>{{ _('Prime') }}</option>
+                <option value=4>{{ _('Win Plus') }}</option>
+                <option value=5>{{ _('4 / 4B') }}</option>
+                <option value=6>{{ _('Lite 2 / One Plus') }}</option>
+                <option value=7>{{ _('R1 / Zero / Zero Plus') }}</option>
+                <option value=8>{{ _('Zero Plus 2') }}</option>
+                <option value=9>{{ _('3') }}</option>
             </select>
+        </div>
+    </div>
+    <div class="control-group">
+    	<input id="filamentsensorsimplifiedopi_settings_gpioMode_BORRAR" type="hidden" value="13">
+        <div class="controls">
             <div class="alert alert-info" data-bind="visible: gpio_mode_disabled">
                 <i class="fas fa-info icon-info-sign iconRight"></i>
                 {{ _('Board mode has been set by third party/other plugin and is disabled') }}
@@ -20,10 +31,10 @@
     </div>
 
     <div class="control-group">
-        <label class="control-label" for="filamentsensorsimplifiedopi_settings_pinInput">{{ _('Pin number') }}</label>
+        <label class="control-label" for="filamentsensorsimplifiedopi_settings_pinInput">{{ _('Board pin number') }}</label>
         <div class="controls">
             <input id="filamentsensorsimplifiedopi_settings_pinInput" type="number" step="1" min="0" max="40" class="input-mini" data-bind="value: settingsViewModel.settings.plugins.filamentsensorsimplifiedopi.pin, disable:printing" required>
-            <span class="help-block">Which Orange Pi pin is your sensor output attached to? (0 disables the plugin) <a target="_blank" href="https://pinout.xyz/">Pinout help</a></span>
+            <span class="help-block">Which Orange Pi phisical board pin is your sensor output attached to? (0 disables the plugin) <a target="_blank" href="https://www.google.com/search?q=orange+pi+pinout">Pinout help</a></span>
             <div class="alert alert-error hidden" id="filamentsensorsimplifiedopi_settings_badpin">
                 <i class="fas fa-info icon-info-sign iconRight"></i>
                 {{ _('Warning: The selected pin is not a standard "data" pin.') }}
@@ -44,6 +55,10 @@
                 Warning! Never connect the sensor to 5V! 5V could destroy GPIO of your Orange Pi.
             </div>
         </div>
+        <div class="alert alert-info hidden" id="filamentsensorsimplifiedopi_settings_pullupwarn">
+            <i class="fas fa-info icon-info-sign iconRight"></i>
+            Pins 3 and 5 (Board mode) probably have physical pull up resistor. If sensor is connected to 3.3V this plugin may not work.
+         </div>
     </div>
 
     <div class="control-group">
@@ -81,10 +96,6 @@
         </div>
     </div>
 
-    <div class="alert alert-info hidden" id="filamentsensorsimplifiedopi_settings_pullupwarn">
-        <i class="fas fa-info icon-info-sign iconRight"></i>
-        Pins 3 and 5 (Board mode) or 2 and 3 (BCM mode Raspberry Pi) or ? and ? (SUNXI mode Orange Pi) have physical pull up resistor. If sensor is connected to 3.3V this plugin won't work.
-    </div>
     <br>
 
     <p>For more information click <a target="_blank" href="https://github.com/camochu/Filament_sensor_simplified_OPi">here</a></p>
