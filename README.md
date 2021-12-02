@@ -20,29 +20,36 @@ Let's check some features:
 
 **NOTE: this plugin won't work if you use OctoPrint only to start printing from SD card**
 
+## Requires
+
+* python 3 o higher
+* [OPi.GPIO v0.5.2](https://github.com/rm-hull/OPi.GPIO)
+
 ## Setup
 
-Install via the bundled [Plugin Manager](https://docs.octoprint.org/en/master/bundledplugins/pluginmanager.html)
-or manually using this URL:
+Install manually using this URL:
 
     https://github.com/camochu/Filament_sensor_simplified_OPi/archive/master.zip
+
+More info to [install Octoprint plugins](https://plugins.octoprint.org/help/installation/)
 
 ## Configuration
 
 Configuration consists of these parameters:
-1. **GPIO mode** - BOARD or BCM mode, **BOARD mode** - referring to the pins by the number, **BCM mode** - referring to the pins
-by the "Broadcom SOC channel", if this is selected by 3rd party, this option will be disabled with note on GUI
-2. **pin number** - pin number based on selected mode
-3. **gcode** to send to printer on filament runout - default is M600 X0 Y0
-4. **power input to sensor** - input is connected to **ground or 3.3 V**
-5. **switch type** - switch should be **triggered when opened** (input of the sensor doesn't transfer to its output) or **triggered
+1. **Orange Pi model** - to select Orange Pi model, grouped by similar GPIO connector BOARD
+2. **Board pin number** - pin number based on selected model. Always use the physical pin number in board
+3. **Sensor is connected to** - select if sensor is connected to **ground or 3.3 V**
+4. **switch type** - switch should be **triggered when opened** (input of the sensor doesn't transfer to its output) or **triggered
 when closed** (input of the sensor is transferred to its output)
+5. **Action** - select if you want to send pause to Octoprint or send your own G-code to printer on filament runout. When G-code is selected, you can write g-code in a textbox - default is M600 X0 Y0
 
 Default pin is 0 (not configured) and ground (as it is safer, read below).
 
-**WARNING! Never connect the switch input to 5V as it could fry the GPIO section of your Raspberry!**
-
 **WARNING! When using test button on input pin used by other application it will reset internal pull up/down resistor**
+
+**WARNING! As internal pull up/down resistor is not implemented in last version of OPi.GPIO, you MUST USE EXTERNAL PULL UP/DOWN RESISTORS (or been sure that selected pin has permanent internal pull up/down)**
+
+**WARNING! Never connect the switch input or pull up resistors to 5V as it could fry the GPIO section of your Orange Pi!**
 
 #### Advice
 
@@ -52,10 +59,10 @@ To solve this connect a shielded wire to your sensor and ground the shielding, i
 
 If you are unsure about your sensor being triggered, check [OctoPrint logs](https://community.octoprint.org/t/where-can-i-find-octoprints-and-octopis-log-files/299)
 
-## Support me
+## Support author
 
-This plugin was developed in my spare time.
-If you find it useful and like it, you can support me by clicking the button below :)
+This plugin was forked to support my own device and configuraton and developed in my spare time.
+If you find it useful and like it, you can support Lukáš Malatinský as original author by clicking the button below :)
 
 [![More coffee, more code](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=5L758LYSUGHW4&source=url)
 

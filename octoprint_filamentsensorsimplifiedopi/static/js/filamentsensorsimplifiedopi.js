@@ -3,6 +3,7 @@ $(function () {
         var self = this;
 
         self.validPinsBoard = [3,5,7,11,13,15,19,21,23,27,29,31,33,35,37,8,10,12,16,18,22,24,26,28,32,36,38,40];
+		self.nonEdgePinsBoard = [12, 16, 18, 19, 21, 23, 24]
         self.settingsViewModel = parameters[0];
         self.testSensorResult = ko.observable(null);
         self.gpio_mode_disabled = ko.observable(false);
@@ -176,6 +177,12 @@ $(function () {
                 $('#filamentsensorsimplifiedopi_settings_badpin').removeClass('hidden pulsAlert').addClass('pulsAlert');
             }else{
                 $('#filamentsensorsimplifiedopi_settings_badpin').addClass('hidden').removeClass('pulsAlert');
+            }
+            if (pimodel <= 5 && $.inArray(pin,self.nonEdgePinsBoard) != -1){
+                showWarning = false;
+                $('#filamentsensorsimplifiedopi_settings_nonedgepin').removeClass('hidden pulsAlert').addClass('pulsAlert');
+            }else{
+                $('#filamentsensorsimplifiedopi_settings_nonedgepin').addClass('hidden').removeClass('pulsAlert');
             }
 
             // High or low
