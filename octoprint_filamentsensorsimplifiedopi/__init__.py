@@ -8,6 +8,15 @@ from time import sleep
 import time
 import OPi.GPIO as GPIO
 import flask
+import orangepi.pc          # Lite / One / PC / PC Plus / Plus 2E (40 GPIO)
+import orangepi.pc2         # PC 2 (40 GPIO)
+import orangepi.prime       # Prime (40 GPIO)
+import orangepi.winplus     # Win Plus (40 GPIO)
+import orangepi.pi4         # 4 / 4B (40 GPIO)
+import orangepi.oneplus     # Lite 2 / One Plus (26 GPIO)
+import orangepi.zeroplus    # R1 / Zero / Zero Plus (26 GPIO)
+import orangepi.zeroplus2   # Zero Plus 2 (26 GPIO)
+import orangepi.pi3         # 3 (26 GPIO)
 
 import orangepi.pc          # Lite / One / PC / PC Plus / Plus 2E (40 GPIO)
 import orangepi.pc2         # PC 2 (40 GPIO)
@@ -138,6 +147,7 @@ class Filament_sensor_simplified_OPiPlugin(octoprint.plugin.StartupPlugin,
 			# only poll every 60 seconds and if auto detection is not running
 			timenow = int(time.time())
 			if self.detectionOn == False and (timenow - self.ui_status) >= 60:
+###				self._logger.info("ON_API_COMMAND_pollstatus: self.pin %s, data[pin] %s", self.pin, int(data.get("pin")))	###
 				if self.setupGPIO():
 					self.no_filament()
 			return flask.jsonify({'status' : self.last_status})
