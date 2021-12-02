@@ -3,8 +3,21 @@
         <i class="fas icon-lock fa-hourglass-half  iconRight"></i>
         {{ _('All settings are disabled while printing') }}
     </div>
-    <h3>{{ _('Sensor setup') }}</h3>
     <div class="control-group">
+    	<input id="filamentsensorsimplifiedopi_settings_gpioMode_BORRAR" type="hidden" value="13">
+        <div class="controls">
+            <div class="alert alert-info" data-bind="visible: gpio_mode_disabled">
+                <i class="fas fa-info icon-info-sign iconRight"></i>
+                {{ _('Board mode has been set by third party/other plugin and is disabled') }}
+            </div>
+        </div>
+    </div>
+    <h3>{{ _('Sensor setup') }}</h3>
+    <div class="alert alert-error">
+       <i class="fas fa-exclamation icon-warning-sign iconRight"></i>
+       Warning! Never connect the sensor to 5V! 5V could destroy GPIO of your Orange Pi.
+   </div>
+   <div class="control-group">
         <label class="control-label" for="filamentsensorsimplifiedopi_settings_orangePiModel">{{ _('Orange Pi model') }}</label>
         <div class="controls">
             <select title="{{ _('Orange Pi model (Zero, One, PC, ...)') }}" id="filamentsensorsimplifiedopi_settings_orangePiModel" data-bind="value: settingsViewModel.settings.plugins.filamentsensorsimplifiedopi.orangepimodel, disable:printing()" required>
@@ -21,16 +34,6 @@
         </div>
     </div>
     <div class="control-group">
-    	<input id="filamentsensorsimplifiedopi_settings_gpioMode_BORRAR" type="hidden" value="13">
-        <div class="controls">
-            <div class="alert alert-info" data-bind="visible: gpio_mode_disabled">
-                <i class="fas fa-info icon-info-sign iconRight"></i>
-                {{ _('Board mode has been set by third party/other plugin and is disabled') }}
-            </div>
-        </div>
-    </div>
-
-    <div class="control-group">
         <label class="control-label" for="filamentsensorsimplifiedopi_settings_pinInput">{{ _('Board pin number') }}</label>
         <div class="controls">
             <input id="filamentsensorsimplifiedopi_settings_pinInput" type="number" step="1" min="0" max="40" class="input-mini" data-bind="value: settingsViewModel.settings.plugins.filamentsensorsimplifiedopi.pin, disable:printing" required>
@@ -39,9 +42,12 @@
                 <i class="fas fa-info icon-info-sign iconRight"></i>
                 {{ _('Warning: The selected pin is not a standard "data" pin.') }}
             </div>
+            <div class="alert alert-error hidden" id="filamentsensorsimplifiedopi_settings_nonedgepin">
+                <i class="fas fa-info icon-info-sign iconRight"></i>
+                {{ _('Warning: The selected pin could not detect state changes correctly') }}
+            </div>
         </div>
     </div>
-
     <div class="control-group">
         <label class="control-label" for="filamentsensorsimplifiedopi_settings_powerInput">{{ _('Sensor is connected to') }}</label>
         <div class="controls">
@@ -50,17 +56,12 @@
                 <option value=1>{{ _('3.3V') }}</option>
             </select>
             <span class="help-block">Specify how the sensor (switch) is connected. One end of the sensor must be wired to ground or 3.3V.</span>
-            <div class="alert alert-error">
-                <i class="fas fa-exclamation icon-warning-sign iconRight"></i>
-                Warning! Never connect the sensor to 5V! 5V could destroy GPIO of your Orange Pi.
-            </div>
         </div>
         <div class="alert alert-info hidden" id="filamentsensorsimplifiedopi_settings_pullupwarn">
             <i class="fas fa-info icon-info-sign iconRight"></i>
-            Pins 3 and 5 (Board mode) probably have physical pull up resistor. If sensor is connected to 3.3V this plugin may not work.
+            Pins 3 and 5 probably have physical intenal pull up resistors. If sensor is connected to 3.3V this plugin may not work.
          </div>
     </div>
-
     <div class="control-group">
         <label class="control-label">{{ _('Switch type') }}</label>
         <div class="controls">
@@ -71,7 +72,6 @@
             <span class="help-block">Select if the switch is triggered when open or closed.</span>
         </div>
     </div>
-
     <h3>{{ _('Filament run out action') }}</h3>
     <div class="control-group">
         <label class="control-label" for="filamentsensorsimplifiedopi_settings_commandInput">{{ _('Action') }}</label>
@@ -87,7 +87,6 @@
             <input id="filamentsensorsimplifiedopi_settings_commandInput" type="text" class="input-large" data-bind="value: settingsViewModel.settings.plugins.filamentsensorsimplifiedopi.g_code, disable:printing">
         </div>
     </div>
-
     <h3>{{ _('Test sensor') }}</h3>
     <div class="control-group">
         <div class="controls">
@@ -95,9 +94,5 @@
             <div id="filamentsensorsimplifiedopi_settings_testResult" class="hide alert" data-bind="html: testSensorResult"></div>
         </div>
     </div>
-
-    <br>
-
     <p>For more information click <a target="_blank" href="https://github.com/camochu/Filament_sensor_simplified_OPi">here</a></p>
-
 </form>
